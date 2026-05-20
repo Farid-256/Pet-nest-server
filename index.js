@@ -50,13 +50,13 @@ async function run() {
         const animalsCollection = db.collection('animals')
         const adoptingCollection = db.collection('adopCollection')
 
-        app.post('/animals', async (req, res) => {
+        app.post('/animals', async, verifyToken, (req, res) => {
             const newPet = req.body
             const result = await animalsCollection.insertOne(newPet)
             res.send(result)
         })
 
-        app.get('/animals', async (req, res) => {
+        app.get('/animals',verifyToken, async (req, res) => {
             try {
 
                 const search = req.query.search || '';
@@ -182,7 +182,7 @@ async function run() {
             }
         });
 
-        app.patch('/animals/:id', async (req, res) => {
+        app.patch('/animals/:id', verifyToken, async (req, res) => {
             const { id } = req.params
             const upDatedData = req.body
             const result = await animalsCollection.updateOne(
@@ -194,7 +194,7 @@ async function run() {
 
 
         // Approve Request
-        app.patch('/requests/approve/:requestId', async (req, res) => {
+        app.patch('/requests/approve/:requestId',verifyToken, async (req, res) => {
             try {
                 const { requestId } = req.params;
 
@@ -252,7 +252,7 @@ async function run() {
 
 
 
-        app.delete('/my-listings/:id', async (req, res) => {
+        app.delete('/my-listings/:id',verifyToken, async (req, res) => {
             const id = req.params.id
             const query = {
                 _id: new ObjectId(id)
