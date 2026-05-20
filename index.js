@@ -50,13 +50,13 @@ async function run() {
         const animalsCollection = db.collection('animals')
         const adoptingCollection = db.collection('adopCollection')
 
-        app.post('/animals', async, verifyToken, (req, res) => {
+        app.post('/animals', verifyToken, async (req, res) => {
             const newPet = req.body
             const result = await animalsCollection.insertOne(newPet)
             res.send(result)
         })
 
-        app.get('/animals',verifyToken, async (req, res) => {
+        app.get('/animals',async (req, res) => {
             try {
 
                 const search = req.query.search || '';
@@ -123,7 +123,7 @@ async function run() {
             res.send(animal)
         })
 
-        app.get('/my-listings', async (req, res) => {
+        app.get('/my-listings',verifyToken, async (req, res) => {
             try {
                 const userEmail = req.query.email;
 
@@ -151,7 +151,7 @@ async function run() {
             }
         })
 
-        app.get('/my-requests', async (req, res) => {
+        app.get('/my-requests',verifyToken, async (req, res) => {
             try {
                 const userEmail = req.query.email;
 
@@ -194,7 +194,7 @@ async function run() {
 
 
         // Approve Request
-        app.patch('/requests/approve/:requestId',verifyToken, async (req, res) => {
+        app.patch('/requests/approve/:requestId', async (req, res) => {
             try {
                 const { requestId } = req.params;
 
