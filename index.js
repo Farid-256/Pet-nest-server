@@ -167,7 +167,7 @@ async function run() {
 
 
 
-        app.post('/adoptions', async (req, res) => {
+        app.post('/adoptions',verifyToken, async (req, res) => {
             try {
                 const adopingData = req.body;
 
@@ -194,7 +194,7 @@ async function run() {
 
 
         // Approve Request
-        app.patch('/requests/approve/:requestId', async (req, res) => {
+        app.patch('/requests/approve/:requestId',verifyToken, async (req, res) => {
             try {
                 const { requestId } = req.params;
 
@@ -234,7 +234,7 @@ async function run() {
         });
 
         // Reject Request
-        app.patch('/requests/reject/:requestId', async (req, res) => {
+        app.patch('/requests/reject/:requestId', verifyToken, async (req, res) => {
             try {
                 const { requestId } = req.params;
 
@@ -261,7 +261,7 @@ async function run() {
             res.send(result)
         })
 
-        app.delete('/adoptions/:id', async (req, res) => {
+        app.delete('/adoptions/:id', verifyToken, async (req, res) => {
             try {
                 const { id } = req.params;
                 const result = await adoptingCollection.deleteOne({ _id: new ObjectId(id) });
