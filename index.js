@@ -229,7 +229,7 @@ async function run() {
             }
         })
 
-        // Reject Request
+
         app.patch('/requests/reject/:requestId', verifyToken, async (req, res) => {
             try {
                 const { requestId } = req.params;
@@ -244,9 +244,7 @@ async function run() {
                 console.error(error);
                 res.status(500).send({ error: "Server Error" });
             }
-        });
-
-
+        })
 
         app.delete('/my-listings/:id',verifyToken, async (req, res) => {
             const id = req.params.id
@@ -266,9 +264,6 @@ async function run() {
                 res.status(500).send({ error: "Server Error" });
             }
         })
-
-
-
 
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
