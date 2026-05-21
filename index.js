@@ -69,7 +69,7 @@ async function run() {
 
                 const query = {};
 
-                // Search by name using $regex
+               
                 if (search) {
                     query.name = {
                         $regex: search,
@@ -77,7 +77,6 @@ async function run() {
                     };
                 }
 
-                // Filter by species using $in
                 if (species) {
 
                     const speciesArray = species.split(',');
@@ -89,7 +88,6 @@ async function run() {
 
                 let sortOption = {};
 
-                // Sorting
                 if (sort === 'low') {
                     sortOption = { adoptionFee: 1 };
                 }
@@ -231,7 +229,7 @@ async function run() {
                 console.error(error);
                 res.status(500).send({ error: "Server Error" });
             }
-        });
+        })
 
         // Reject Request
         app.patch('/requests/reject/:requestId', verifyToken, async (req, res) => {
