@@ -23,7 +23,7 @@ const JWKS = createRemoteJWKSet(
     new URL('http://localhost:3000/api/auth/jwks')
 )
 
-const verifyToken = async(req, res, next) => {
+const verifyToken = async (req, res, next) => {
     const authHeader = req?.headers.authorization
     if (!authHeader) {
         return res.status(401).json({ message: 'Unauthorized' })
@@ -36,9 +36,9 @@ const verifyToken = async(req, res, next) => {
     try {
         const { payload } = await jwtVerify(token, JWKS)
         next()
-        
+
     } catch (error) {
-        return res.status(403).json({message: 'Forbidden'})
+        return res.status(403).json({ message: 'Forbidden' })
     }
 
 }
@@ -56,7 +56,7 @@ async function run() {
             res.send(result)
         })
 
-        app.get('/animals',async (req, res) => {
+        app.get('/animals', async (req, res) => {
             try {
 
                 const search = req.query.search || '';
@@ -69,7 +69,7 @@ async function run() {
 
                 const query = {};
 
-               
+
                 if (search) {
                     query.name = {
                         $regex: search,
@@ -121,7 +121,7 @@ async function run() {
             res.send(animal)
         })
 
-        app.get('/my-listings',verifyToken, async (req, res) => {
+        app.get('/my-listings', verifyToken, async (req, res) => {
             try {
                 const userEmail = req.query.email;
 
@@ -149,7 +149,7 @@ async function run() {
             }
         })
 
-        app.get('/my-requests',verifyToken, async (req, res) => {
+        app.get('/my-requests', verifyToken, async (req, res) => {
             try {
                 const userEmail = req.query.email;
 
@@ -164,19 +164,53 @@ async function run() {
         })
 
 
-
-        app.post('/adoptions',verifyToken, async (req, res) => {
+        app.post('/adoptions', verifyToken, async (req, res) => {
             try {
                 const adopingData = req.body;
 
                 if (adopingData.userEmail === adopingData.ownerEmail) {
-                    return res.status(400).send({ error: "You cannot adopt your own pet" });
+                    return res.status(400).send({
+                        error: "You cannot adopt your own pet"
+                    });
+                }
+
+                const pet = await animalsCollection.findOne({
+                    _id: new ObjectId(adopingData.animalId)
+                });
+
+                if (!pet) {
+                    return res.status(404).send({
+                        error: "Pet not found"
+                    });
+                }
+
+                if (pet.status === 'adopted') {
+                    return res.status(400).send({
+                        error: "This pet has already been adopted"
+                    });
+                }
+
+                const existingRequest = await adoptingCollection.findOne({
+                    animalId: adopingData.animalId,
+                    userEmail: adopingData.userEmail
+                });
+
+                if (existingRequest) {
+                    return res.status(400).send({
+                        error: "You already requested this pet"
+                    });
                 }
 
                 const result = await adoptingCollection.insertOne(adopingData);
+
                 res.send(result);
+
             } catch (error) {
-                res.status(500).send({ error: "Server Error" });
+                console.log(error);
+
+                res.status(500).send({
+                    error: "Server Error"
+                });
             }
         });
 
@@ -192,7 +226,7 @@ async function run() {
 
 
 
-        app.patch('/requests/approve/:requestId',verifyToken, async (req, res) => {
+        app.patch('/requests/approve/:requestId', verifyToken, async (req, res) => {
             try {
                 const { requestId } = req.params;
 
@@ -246,7 +280,7 @@ async function run() {
             }
         })
 
-        app.delete('/my-listings/:id',verifyToken, async (req, res) => {
+        app.delete('/my-listings/:id', verifyToken, async (req, res) => {
             const id = req.params.id
             const query = {
                 _id: new ObjectId(id)
