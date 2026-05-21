@@ -191,7 +191,7 @@ async function run() {
         })
 
 
-        // Approve Request
+
         app.patch('/requests/approve/:requestId',verifyToken, async (req, res) => {
             try {
                 const { requestId } = req.params;
@@ -202,23 +202,21 @@ async function run() {
                     return res.status(404).send({ error: "Request not found" });
                 }
 
-                // 1. Approve this request
+
                 await adoptingCollection.updateOne(
                     { _id: new ObjectId(requestId) },
                     { $set: { status: 'approved' } }
                 );
 
-                // 2. Mark pet as adopted
                 await animalsCollection.updateOne(
                     { _id: new ObjectId(request.animalId) },
                     { $set: { status: 'adopted' } }
                 );
 
-                // 3. Reject all other requests for this pet
                 await adoptingCollection.updateMany(
                     {
                         animalId: request.animalId,
-                        _id: { $ne: new ObjectId(requestId) },   // এই রিকোয়েস্ট বাদে
+                        _id: { $ne: new ObjectId(requestId) },
                         status: 'pending'
                     },
                     { $set: { status: 'rejected' } }
